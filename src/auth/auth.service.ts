@@ -75,7 +75,7 @@ export class AuthService {
     return user;
   }
 
-  async refreshToken(userId: string, token: string) {
+  async saveRefreshToken(userId: string, token: string) {
     const dbHash = await this.hashForDb(token);
     const redisHash = this.hashForRedis(token);
     const refreshToken = await this.refreshTokenModel.create({
@@ -101,7 +101,7 @@ export class AuthService {
       expiresIn: this.configService.getOrThrow('JWT_ACCESS_TOKEN_EXPIRATION'),
     });
     const refreshToken = this.generateRefreshToken();
-    await this.refreshToken(user._id.toString(), refreshToken);
+    await this.saveRefreshToken(user._id.toString(), refreshToken);
     return {
       accessToken,
       refreshToken,
@@ -131,7 +131,7 @@ export class AuthService {
     const newRefreshToken = this.generateRefreshToken();
 
     const userId = tokenRecord.userId.toString();
-    await this.refreshToken(userId, newRefreshToken);
+    await this.saveRefreshToken(userId, newRefreshToken);
 
     const user = await this.userModel.findById(userId);
 
