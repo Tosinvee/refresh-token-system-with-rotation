@@ -150,4 +150,12 @@ export class AuthService {
       refreshToken: newRefreshToken,
     };
   }
+
+  async logout(refreshToken: string) {
+    const redisHash = this.hashForRedis(refreshToken);
+    const tokenId = await redisClient.get(`refresh:${redisHash}`);
+    await this.refreshTokenModel.updateOne({ _id: tokenId }, { revoked: true });
+    await redisClient.del(`refresh:${redisHash}`);
+    return { message: 'User logged out sucessfully' };
+  }
 }
