@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { CurrentUser } from './current-user';
-import { User } from 'src/user/user.schema';
+import { User } from 'src/user/schema/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -16,7 +16,12 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
-  async login(@CurrentUser() user: User) {
+  login(@CurrentUser() user: User) {
     return this.authService.login(user);
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refresh(refreshToken);
   }
 }
