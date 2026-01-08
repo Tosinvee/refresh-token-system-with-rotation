@@ -16,10 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
-import {
-  RefreshToken,
-  RefreshTokenSchema,
-} from 'src/user/schema/refresh-token.schema';
+import { RefreshToken } from 'src/user/schema/refresh-token.schema';
 import redisClient from 'src/utils/redisClient';
 
 @Injectable()

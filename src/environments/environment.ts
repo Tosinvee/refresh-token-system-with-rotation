@@ -8,4 +8,7 @@ export const environment = {
   mongoUri: env.DATABASE_URL,
   jwtAccessTokenSecret: env.JWT_ACCESS_TOKEN_SECRET,
   jwtAccessTokenExpiration: Number(env.JWT_ACCESS_TOKEN_EXPIRATION),
+  queues: {
+    NOTIFICATION: 'notification',
+  },
 };
