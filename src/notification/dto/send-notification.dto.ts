@@ -10,7 +10,4 @@ export class SendNotificationDto {
 
   @IsString()
   userId: string;
-
-  @IsString()
-  fcmToken: string;
 }

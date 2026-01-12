@@ -28,36 +28,69 @@ export class FirebaseService implements OnModuleInit {
         credential: admin.credential.cert(serviceAccount),
       });
 
-      this.logger.log('🔥 Firebase initialized successfully');
+      this.logger.log(' Firebase initialized successfully');
     } catch (error) {
-      this.logger.error('❌ Failed to initialize Firebase', error);
+      this.logger.error(' Failed to initialize Firebase', error);
       throw error;
     }
   }
 
-  async sendPushToken(
-    token: string,
-    title: string,
-    body: string,
-    data?: Record<string, string>,
-  ) {
-    if (!token) {
-      throw new Error('FCM token is required');
-    }
+  // async subscribeToUserTopic(token: string, userId: string) {
+  //   await admin.messaging().subscribeToTopic(token, `user_${userId}`);
+  //   await admin.messaging().subscribeToTopic(token, 'system');
+  // }
 
-    const message: admin.messaging.Message = {
-      token,
+  async sendViaTopic(userId: string, title: string, body: string) {
+    await admin.messaging().send({
+      topic: `user_${userId}`,
       notification: { title, body },
-      data: data || {},
-    };
+    });
+  }
 
+  async sendViaToken(tokens: string[], title: string, body: string) {
+    const results = await Promise.allSettled(
+      tokens.map((token) =>
+        admin.messaging.send({ token, notification: { title, body } }),
+      ),
+    );
+    return results;
+  }
+
+  async subscribeUserToTopic(userId: string, fcmToken: string): Promise<void> {
     try {
-      const response = await admin.messaging().send(message);
-      this.logger.log(`✅ FCM sent: ${response}`);
-      return response;
+      const topic = `user_${userId}`;
+      const response = await admin
+        .messaging()
+        .subscribeToTopic(fcmToken, topic);
+      this.logger.log(response);
     } catch (error) {
-      this.logger.error('❌ FCM failed', error);
-      throw error;
+      this.logger.error('Error sending notification:', error);
     }
   }
 }
+
+// async sendPushToken(
+//   token: string,
+//   title: string,
+//   body: string,
+//   data?: Record<string, string>,
+// ) {
+//   if (!token) {
+//     throw new Error('FCM token is required');
+//   }
+
+//   const message: admin.messaging.Message = {
+//     token,
+//     notification: { title, body },
+//     data: data || {},
+//   };
+
+//   try {
+//     const response = await admin.messaging().send(message);
+//     this.logger.log(` FCM sent: ${response}`);
+//     return response;
+//   } catch (error) {
+//     this.logger.error(' FCM failed', error);
+//     throw error;
+//   }
+// }
