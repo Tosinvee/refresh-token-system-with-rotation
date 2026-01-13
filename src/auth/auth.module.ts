@@ -10,6 +10,7 @@ import {
   RefreshToken,
   RefreshTokenSchema,
 } from 'src/user/schema/refresh-token.schema';
+import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import {
     ]),
     UserModule,
   ],
-  providers: [AuthService, JwtService, LocalStrategy],
+  providers: [AuthService, JwtService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

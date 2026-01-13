@@ -43,6 +43,7 @@ export class UserService {
     if (!existing || !existing.active) {
       await this.firebaseService.subscribeUserToTopic(userId, token);
     }
+    return { message: 'User subscribed to topic sucessfully' };
   }
 
   async getActiveToken(userId: string) {
