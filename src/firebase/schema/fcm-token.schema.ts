@@ -6,7 +6,7 @@ export class FcmToken extends Document {
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ required: true, token: true })
+  @Prop({ required: true, unique: true, index: true })
   token: string;
 
   @Prop({ default: true })

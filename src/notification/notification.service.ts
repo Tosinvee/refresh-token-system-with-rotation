@@ -2,7 +2,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { environment } from '../environments/environment';
 import { Queue } from 'bull';
-import { SendNotificationDto } from './dto/send-notification.dto';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { UserService } from 'src/user/user.service';
 const { NOTIFICATION } = environment.queues;
@@ -21,26 +20,11 @@ export class NotificationService {
     body: string,
     options?: { guaranteed?: boolean },
   ) {
-    if (!options?.guaranteed) {
-      await this.firebaseService.sendViaTopic(userId, title, body);
-      return;
-    }
-
-    const tokens = await this.userService.getActiveToken(userId);
-
-    const results = await this.firebaseService.sendViaToken(
-      tokens.map((t) => t.token),
+    await this.notificationQueue.add('push-notificaton', {
+      userId,
       title,
-      body,
-    );
-
-    results.forEach((res, index) => {
-      if (
-        res.status === 'rejected' &&
-        res.reason?.code === 'messaging/registration-token-not-registered'
-      ) {
-        this.userService.deactivateToken(tokens[index].token);
-      }
+      message: body,
+      guaranteed: options?.guaranteed ?? false,
     });
     return { status: 'queued' };
   }

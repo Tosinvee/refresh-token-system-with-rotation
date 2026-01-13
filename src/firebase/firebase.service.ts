@@ -13,6 +13,10 @@ export class FirebaseService implements OnModuleInit {
 
   private initFirebase() {
     try {
+      if (admin.apps.length) {
+        this.logger.log('Firebase already initialized');
+        return;
+      }
       // Only read JSON via readFileSync
       const path = join(__dirname, '../../practical-firebase-config.json');
       const raw = readFileSync(path, 'utf8');
@@ -44,25 +48,32 @@ export class FirebaseService implements OnModuleInit {
     await admin.messaging().send({
       topic: `user_${userId}`,
       notification: { title, body },
+      data: {
+        userId,
+        type: 'PUSH',
+      },
     });
   }
 
   async sendViaToken(tokens: string[], title: string, body: string) {
-    const results = await Promise.allSettled(
+    return Promise.allSettled(
       tokens.map((token) =>
-        admin.messaging.send({ token, notification: { title, body } }),
+        admin.messaging().send({
+          token,
+          notification: { title, body },
+          data: {
+            type: 'PUSH',
+          },
+        }),
       ),
     );
-    return results;
   }
 
   async subscribeUserToTopic(userId: string, fcmToken: string): Promise<void> {
     try {
       const topic = `user_${userId}`;
-      const response = await admin
-        .messaging()
-        .subscribeToTopic(fcmToken, topic);
-      this.logger.log(response);
+      await admin.messaging().subscribeToTopic(fcmToken, topic);
+      this.logger.log(`Subscribed token to ${topic}`);
     } catch (error) {
       this.logger.error('Error sending notification:', error);
     }
