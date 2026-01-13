@@ -10,22 +10,15 @@ const { NOTIFICATION } = environment.queues;
 export class NotificationService {
   constructor(
     @InjectQueue(NOTIFICATION) private readonly notificationQueue: Queue,
-    private firebaseService: FirebaseService,
-    private userService: UserService,
   ) {}
 
-  async send(
-    userId: string,
-    title: string,
-    body: string,
-    options?: { guaranteed?: boolean },
-  ) {
-    await this.notificationQueue.add('push-notificaton', {
+  async send(userId: string, title: string, body: string) {
+    await this.notificationQueue.add('push-notification', {
       userId,
       title,
       message: body,
-      guaranteed: options?.guaranteed ?? false,
     });
+
     return { status: 'queued' };
   }
 }

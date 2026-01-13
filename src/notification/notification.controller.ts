@@ -8,6 +8,6 @@ export class NotificationController {
 
   @Post()
   send(@Body() dto: SendNotificationDto) {
-    return this.service.send(dto);
+    return this.service.send(dto.message, dto.title, dto.userId);
   }
 }

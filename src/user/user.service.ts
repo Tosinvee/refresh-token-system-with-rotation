@@ -32,13 +32,17 @@ export class UserService {
   }
 
   async registerDevice(userId: string, token: string) {
+    const existing = await this.tokenModel.findOne({ token });
+
     await this.tokenModel.updateOne(
       { token },
       { userId, token, active: true },
       { upsert: true },
     );
 
-    await this.firebaseService.subscribeUserToTopic(userId, token);
+    if (!existing || !existing.active) {
+      await this.firebaseService.subscribeUserToTopic(userId, token);
+    }
   }
 
   async getActiveToken(userId: string) {

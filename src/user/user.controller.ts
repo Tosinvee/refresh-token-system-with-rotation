@@ -1,4 +1,10 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuards } from 'src/auth/guard/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/current-user';
@@ -15,6 +21,9 @@ export class UserController {
     user: User,
     @Body('token') token: string,
   ) {
+    if (!token) {
+      throw new BadRequestException('FCM token is required');
+    }
     return this.userService.registerDevice(user._id.toString(), token);
   }
 }

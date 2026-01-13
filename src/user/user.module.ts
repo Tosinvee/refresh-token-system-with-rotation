@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schema/user.schema';
+import { FcmToken, FcmTokenSchema } from 'src/firebase/schema/fcm-token.schema';
+import { FirebaseModule } from 'src/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -11,7 +13,12 @@ import { User, UserSchema } from './schema/user.schema';
         name: User.name,
         schema: UserSchema,
       },
+      {
+        name: FcmToken.name,
+        schema: FcmTokenSchema,
+      },
     ]),
+    FirebaseModule,
   ],
   providers: [UserService],
   controllers: [UserController],

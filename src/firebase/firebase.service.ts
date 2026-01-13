@@ -75,33 +75,7 @@ export class FirebaseService implements OnModuleInit {
       await admin.messaging().subscribeToTopic(fcmToken, topic);
       this.logger.log(`Subscribed token to ${topic}`);
     } catch (error) {
-      this.logger.error('Error sending notification:', error);
+      this.logger.error('Error subscribing token to topic:', error);
     }
   }
 }
-
-// async sendPushToken(
-//   token: string,
-//   title: string,
-//   body: string,
-//   data?: Record<string, string>,
-// ) {
-//   if (!token) {
-//     throw new Error('FCM token is required');
-//   }
-
-//   const message: admin.messaging.Message = {
-//     token,
-//     notification: { title, body },
-//     data: data || {},
-//   };
-
-//   try {
-//     const response = await admin.messaging().send(message);
-//     this.logger.log(` FCM sent: ${response}`);
-//     return response;
-//   } catch (error) {
-//     this.logger.error(' FCM failed', error);
-//     throw error;
-//   }
-// }
