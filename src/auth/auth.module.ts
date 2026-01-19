@@ -11,6 +11,7 @@ import {
   RefreshTokenSchema,
 } from 'src/user/schema/refresh-token.schema';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { MailModule } from 'src/core/mail/mail.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
       },
     ]),
     UserModule,
+    MailModule,
   ],
   providers: [AuthService, JwtService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],

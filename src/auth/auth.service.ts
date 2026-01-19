@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Injectable,
+  InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,6 +19,8 @@ import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { RefreshToken } from 'src/user/schema/refresh-token.schema';
 import redisClient from 'src/utils/redisClient';
+import { environment } from 'src/environments/environment';
+import { MailService } from 'src/core/mail/services/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +32,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private mailService: MailService,
   ) {
     this.logger = new Logger(AuthService.name);
   }
@@ -52,8 +56,45 @@ export class AuthService {
   async signup(body: CreateUserDto) {
     const existingUser = await this.userService.getUser({ email: body.email });
     if (existingUser) throw new BadRequestException('User already exist');
-    await this.userService.create(body);
-    return { message: 'User created' };
+    const hashedPasword = await this.userService.hashedPassword(body.password);
+    const { code, expiration } = await this.userService.generateCode(
+      body.email,
+    );
+    const signupData = {
+      email: body.email,
+      password: hashedPasword,
+    };
+    await redisClient.set(
+      `signup:${code}`,
+      JSON.stringify(signupData),
+      'EX',
+      environment.signUpTtl,
+    );
+    await redisClient.set(
+      `signup:email:${body.email}`,
+      code,
+      'EX',
+      environment.signUpTtl,
+    );
+    try {
+      await this.mailService.sendMail(
+        body.email,
+        'Verify your email',
+        'verify-email',
+        {
+          name: body.firstName,
+          code,
+        },
+      );
+      return {
+        success: true,
+        message: 'Please check your email to complete registration',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        `An error occurred sending email: ${e.message}`,
+      );
+    }
   }
 
   async verifyUser(email: string, password: string): Promise<User> {

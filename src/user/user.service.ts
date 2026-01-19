@@ -6,6 +6,8 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FcmToken } from 'src/firebase/schema/fcm-token.schema';
 import { FirebaseService } from 'src/firebase/firebase.service';
+import { randomDigit } from 'src/utils/random-digits';
+import { environment } from 'src/environments/environment';
 @Injectable()
 export class UserService {
   constructor(
@@ -29,6 +31,29 @@ export class UserService {
 
   async getUser(query: Record<string, any>) {
     return this.userModel.findOne(query);
+  }
+
+  async generateUniqueCode() {
+    let code: string;
+    let user: User;
+
+    do {
+      code = randomDigit(6);
+      user = await this.userModel.findOne({ accessCode: code });
+    } while (user);
+
+    return code;
+  }
+
+  async generateCode(email: string) {
+    const code = await this.generateUniqueCode();
+    return {
+      code,
+      owner: email,
+      expiration: new Date(
+        Date.now() + environment.recoverCodeExpiration * 1000,
+      ),
+    };
   }
 
   async registerDevice(userId: string, token: string) {

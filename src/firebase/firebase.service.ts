@@ -39,11 +39,6 @@ export class FirebaseService implements OnModuleInit {
     }
   }
 
-  // async subscribeToUserTopic(token: string, userId: string) {
-  //   await admin.messaging().subscribeToTopic(token, `user_${userId}`);
-  //   await admin.messaging().subscribeToTopic(token, 'system');
-  // }
-
   async sendViaTopic(userId: string, title: string, body: string) {
     await admin.messaging().send({
       topic: `user_${userId}`,

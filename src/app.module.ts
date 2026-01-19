@@ -10,6 +10,7 @@ import { BullModule } from '@nestjs/bull';
 import { NotificationModule } from './notification/notification.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { WorkerModule } from './worker/worker.module';
+import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { WorkerModule } from './worker/worker.module';
     NotificationModule,
     FirebaseModule,
     WorkerModule,
+    CoreModule,
   ],
   controllers: [AppController],
   providers: [

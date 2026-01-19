@@ -5,11 +5,15 @@ import { JwtAuthGuards } from 'src/auth/guard/jwt-auth.guard';
 
 @Controller('notification')
 export class NotificationController {
-  constructor(private readonly service: NotificationService) {}
+  constructor(private readonly notificationservice: NotificationService) {}
 
   @Post()
   @UseGuards(JwtAuthGuards)
   send(@Body() dto: SendNotificationDto) {
-    return this.service.send(dto.userId, dto.title, dto.message);
+    return this.notificationservice.pushNotification(
+      dto.userId,
+      dto.title,
+      dto.message,
+    );
   }
 }

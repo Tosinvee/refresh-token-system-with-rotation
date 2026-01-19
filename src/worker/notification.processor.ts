@@ -1,6 +1,5 @@
 import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Job } from 'bull';
 import { environment } from 'src/environments/environment';
 import { FirebaseService } from 'src/firebase/firebase.service';
@@ -23,19 +22,17 @@ export class NotificationProcessor {
       title: string;
       message: string;
       userId: string;
-      guaranteed: boolean;
     }>,
   ) {
-    const { title, message, userId, guaranteed } = job.data;
+    const { title, message, userId } = job.data;
 
     this.logger.log(`Sending notification to ${userId}`);
 
-    if (!guaranteed) {
+    const tokens = await this.userService.getActiveToken(userId);
+    if (!tokens.length) {
       await this.firebaseService.sendViaTopic(userId, title, message);
       return;
     }
-
-    const tokens = await this.userService.getActiveToken(userId);
 
     const results = await this.firebaseService.sendViaToken(
       tokens.map((t) => t.token),
